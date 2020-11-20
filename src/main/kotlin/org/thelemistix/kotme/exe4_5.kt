@@ -1,3 +1,5 @@
+package org.thelemistix.kotme
+
 import kotlin.random.Random
 
 fun exe4(): String {

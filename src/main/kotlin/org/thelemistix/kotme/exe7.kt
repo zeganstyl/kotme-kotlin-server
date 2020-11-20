@@ -1,9 +1,10 @@
+package org.thelemistix.kotme
+
 import kotlin.random.Random
 
-fun exe6(): String {
+fun checkCard(cardName: String): String {
     val codes = HashMap<Int, String>()
-
-    Main.eval("val device = Device()")
+    Main.eval("val $cardName = Card()")
 
     for (j in 0 until 10) {
         val code = Random.nextInt(100, 999)
@@ -11,12 +12,19 @@ fun exe6(): String {
 
         codes[code] = value
 
-        Main.eval("device.putCode($code, \"$value\")")
+        Main.eval("$cardName[$code] = \"$value\")")
     }
 
     codes.entries.forEach {
+        if (Main.eval("$cardName[${it.key}]") != codes[it.key]) {
+            return "Карта памяти не смогла выдать пару ${it.key} -> ${it.value}"
+        }
+    }
+
+    Main.eval("device.card = $cardName")
+    codes.entries.forEach {
         if (Main.eval("device.getInfo(${it.key})") != codes[it.key]) {
-            return "getInfo не смог выдать пару ${it.key} -> ${it.value}"
+            return "Прибор не смог выдать пару ${it.key} -> ${it.value}"
         }
     }
 
@@ -31,6 +39,18 @@ fun exe6(): String {
             return "getCodes выдал не все коды, не хватает $code"
         }
     }
+
+    return ""
+}
+
+fun exe7(): String {
+    Main.eval("val device = Device()")
+
+    var result = checkCard("card1")
+    if (result.isNotEmpty()) return result
+
+    result = checkCard("card2")
+    if (result.isNotEmpty()) return result
 
     return ""
 }

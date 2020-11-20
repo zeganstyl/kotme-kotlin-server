@@ -1,5 +1,6 @@
+package org.thelemistix.kotme
+
 import io.ktor.application.*
-import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -26,12 +27,6 @@ object Main {
 
         embeddedServer(Netty, args.getOrNull(0)?.toIntOrNull() ?: 8080) {
             routing {
-                static("/") {
-                    resources("static")
-                }
-                get("/") {
-                    call.respondRedirect("/index.html")
-                }
                 post("/") {
                     val param = call.receiveParameters()
                     val code = param["code"]

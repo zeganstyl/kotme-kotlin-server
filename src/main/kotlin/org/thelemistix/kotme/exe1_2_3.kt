@@ -1,3 +1,5 @@
+package org.thelemistix.kotme
+
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
