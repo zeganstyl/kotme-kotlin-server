@@ -1,11 +1,8 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.10"
-    id("org.springframework.boot") version "2.4.1"
+    id("org.springframework.boot") version "1.5.3.RELEASE"
     id("application")
 }
-
-apply plugin: 'java'
-apply plugin: 'io.spring.dependency-management'
 
 repositories {
     jcenter()
@@ -23,9 +20,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
-    //runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
+    runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 }
-
-task stage(dependsOn: ['build', 'clean'])
-build.mustRunAfter clean
