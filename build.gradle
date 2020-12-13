@@ -10,7 +10,7 @@ repositories {
 
 application {
     mainClass = 'org.thelemistix.kotme.Application'
-    archivesBaseName = "heroku-test"
+    archivesBaseName = "kotme-kotlin-server"
 }
 
 def kotlinVersion = "1.4.10"
@@ -23,3 +23,6 @@ dependencies {
     runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 }
+
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
