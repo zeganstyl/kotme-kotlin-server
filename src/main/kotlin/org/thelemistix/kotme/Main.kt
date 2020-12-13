@@ -31,7 +31,11 @@ object Main {
     fun server(args: Array<String>) {
         engine.eval("fun main(){}", bindings)
 
-        embeddedServer(Netty, args.getOrNull(0)?.toIntOrNull() ?: 8888) {
+        embeddedServer(
+            Netty,
+            port = args.getOrNull(0)?.toIntOrNull() ?: System.getenv()["PORT"]?.toIntOrNull() ?: 8888,
+            host = "localhost"
+        ) {
             routing {
                 get("/") {
                     call.respondText { "KOTme is running" }
