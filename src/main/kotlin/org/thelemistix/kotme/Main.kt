@@ -29,7 +29,7 @@ object Main {
     fun eval(code: String): Any? = engine.eval(code, bindings)
 
     fun server(args: Array<String>) {
-        engine.eval("fun main(){}", bindings)
+        //engine.eval("fun main(){}", bindings)
 
         embeddedServer(
             Netty,
