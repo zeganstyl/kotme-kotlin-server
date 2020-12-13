@@ -1,37 +1,30 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id("org.jetbrains.kotlin.jvm") version "1.4.10"
+    id("org.springframework.boot") version "2.4.1"
+    id("application")
 }
 
-group 'org.thelemistix.kotme'
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
 
 repositories {
     jcenter()
 }
 
-def kotlinVersion = "1.4.10"
-def ktor_version = "1.4.1"
-
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-
-    runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
-
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-
-    implementation("org.slf4j:slf4j-simple:1.7.30")
-
-    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+application {
+    mainClass = 'org.thelemistix.kotme.Application'
+    archivesBaseName = "heroku-test"
 }
 
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'org.thelemistix.kotme.Main'
-        )
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+def kotlinVersion = "1.4.10"
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
 }
 
 task stage(dependsOn: ['build', 'clean'])
