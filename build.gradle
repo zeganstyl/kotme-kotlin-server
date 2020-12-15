@@ -30,6 +30,10 @@ jar {
                 'Main-Class': 'org.thelemistix.kotme.Application'
         )
     }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 task stage(dependsOn: ['build', 'clean'])
