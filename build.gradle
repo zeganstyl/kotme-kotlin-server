@@ -9,7 +9,7 @@ repositories {
 }
 
 application {
-    mainClass = 'org.thelemistix.kotme.Application'
+    mainClass = 'com.thelemistix.kotme.Application'
     archivesBaseName = "kotme-kotlin-server"
 }
 
@@ -24,17 +24,17 @@ dependencies {
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 }
 
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'org.thelemistix.kotme.Application'
-        )
-    }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
+//jar {
+//    manifest {
+//        attributes(
+//                'Main-Class': 'com.thelemistix.kotme.Application'
+//        )
+//    }
+//
+//    from {
+//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//}
 
 task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter clean

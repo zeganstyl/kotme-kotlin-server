@@ -1,4 +1,4 @@
-package org.thelemistix.kotme
+package com.thelemistix.kotme
 
 import kotlin.math.pow
 import kotlin.math.roundToInt

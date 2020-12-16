@@ -1,4 +1,4 @@
-package org.thelemistix.kotme
+package com.thelemistix.kotme
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication

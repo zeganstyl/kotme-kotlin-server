@@ -1,25 +1,12 @@
-package org.thelemistix.kotme
+package com.thelemistix.kotme
 
 import org.json.simple.JSONObject
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.RequestBody
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import javax.script.ScriptEngineManager
 
 @Service
 class ScriptService {
-    val manager = ScriptEngineManager()
-    val engine = manager.getEngineByExtension("kts")!!
-
-    val os = ByteArrayOutputStream()
-    val ps = PrintStream(os)
-    val console = System.out
-
-    val bindings = engine.createBindings()
-
     init {
-        engine.eval("fun main(){}", bindings)
+        Main.initiate()
     }
 
     fun checkRunning(): String = "KOTme is running"
@@ -32,12 +19,12 @@ class ScriptService {
         var consoleLog = ""
 
         if (code != null) {
-            bindings.clear()
-            os.reset()
-            System.setOut(ps)
+            Main.bindings.clear()
+            Main.os.reset()
+            System.setOut(Main.ps)
 
             try {
-                engine.eval(code, bindings)
+                Main.engine.eval(code, Main.bindings)
 
                 message = when (param["exercise"]?.toIntOrNull()) {
                     1 -> exe1()
@@ -53,18 +40,18 @@ class ScriptService {
                     }
                 }
 
-                consoleLog = os.toString()
+                consoleLog = Main.os.toString()
 
                 if (message.isNotEmpty() && status == ResultStatus.TestsSuccess) {
                     status = ResultStatus.TestsFail
                 }
             } catch (ex: Exception) {
                 status = ResultStatus.ExecutionErrors
-                consoleLog = os.toString()
+                consoleLog = Main.os.toString()
                 message = "В коде есть ошибки.\n${ex.message}"
             }
 
-            System.setOut(console)
+            System.setOut(Main.console)
         } else {
             status = ResultStatus.ServerError
             message = "Отсутствует исходный код по задаче"

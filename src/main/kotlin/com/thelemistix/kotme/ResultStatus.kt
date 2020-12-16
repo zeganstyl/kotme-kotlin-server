@@ -1,4 +1,4 @@
-package org.thelemistix.kotme
+package com.thelemistix.kotme
 
 object ResultStatus {
     const val TestsSuccess = 1
