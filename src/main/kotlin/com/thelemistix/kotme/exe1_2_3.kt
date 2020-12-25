@@ -1,58 +1,56 @@
 package com.thelemistix.kotme
 
-import kotlin.math.pow
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlin.script.experimental.api.EvaluationResult
+import kotlin.script.experimental.api.ResultValue
+import kotlin.script.experimental.api.ResultWithDiagnostics
 
-fun exe1(): String {
-    Main.eval("main()")
+typealias EvalResult = ResultWithDiagnostics<EvaluationResult>
+typealias ErrorResult = ResultWithDiagnostics.Failure
+
+fun rand() = Random.nextInt(0, Int.MAX_VALUE)
+
+fun error(text: String): ResultWithDiagnostics<EvaluationResult> = ResultWithDiagnostics.Success(
+    value = EvaluationResult(ResultValue.Error(Exception(text)), null)
+)
+
+// Ready
+fun exe1(code: String): EvalResult? {
+    val result = Main.eval(code + """
+main()
+""")
+
+    if (result is ErrorResult) return result
+
     System.setOut(Main.console)
 
     val text = Main.os.toString().trim()
-    if (text != "Привет Котлин!") {
-        return "Ваш код выдал:\n$text\nНо это не верно."
-    }
-
-    return ""
+    return if (text != "Привет Котлин!") {
+        error("Ваш код выдал:\n$text\nНо это не верно.")
+    } else null
 }
 
-fun roundFloat(v: Float): Float = (v * 100f).roundToInt() * 0.01f
+// Ready
+fun exe2(code: String): EvalResult = Main.eval(code + """
+for (i in 0 until 10) {
+    val x1 = kotlin.random.Random.nextFloat() * 100f - 50f
+    val y1 = kotlin.random.Random.nextFloat() * 100f - 50f
+    val x2 = kotlin.random.Random.nextFloat() * 100f - 50f
+    val y2 = kotlin.random.Random.nextFloat() * 100f - 50f
 
-fun exe2(): String {
-    for (i in 0 until 10) {
-        val x1 = roundFloat(Random.nextFloat() * 100f - 50f)
-        val y1 = roundFloat(Random.nextFloat() * 100f - 50f)
-        val x2 = roundFloat(Random.nextFloat() * 100f - 50f)
-        val y2 = roundFloat(Random.nextFloat() * 100f - 50f)
-
-        val dist = roundFloat(sqrt((x2 - x1).pow(2) + (y2 - y1).pow(2)))
-
-        val test = "distance(${x1}f, ${y1}f, ${x2}f, ${y2}f)"
-
-        val testDist = roundFloat(Main.eval(test) as Float)
-        System.setOut(Main.console)
-
-        if (dist != testDist) {
-            return """
-Тест не пройден:
-$test
-Ваш код выдал:
-$testDist
-Но это не верно
-Ожидалось $dist
+    val dist = sqrt((x2 - x1).pow(2) + (y2 - y1).pow(2))
+    
+    val distanceResult = distance(x1, y1, x2, y2)
+    if (distanceResult != dist) {
+        throw Exception("Тест не пройден:\ndistance(${'$'}x1, ${'$'}y1, ${'$'}x2, ${'$'}y2)\nВаш код выдал: ${'$'}distanceResult\nНо ожидалось: ${'$'}dist")
+    }
+}
 """
-        }
-    }
+)
 
-    return ""
-}
-
-fun exe3(): String {
-    val steps2 = Random.nextInt(5, 30)
-    val rand = Random.nextInt(5, 30)
-
-    for (i in 0 until 10) {
+// Ready
+fun exe3(code: String): EvalResult {
+    for (i in 0 until 3) {
         Main.os.reset()
 
         val steps = Random.nextInt(5, 30)
@@ -63,11 +61,14 @@ fun exe3(): String {
             stepsStr += if (j == steps - 1) "Шаг ${j+1} последний\n" else "Шаг ${j+1} идем далее\n"
         }
 
-        Main.eval("stepsCounting($steps)")
+        val result1 = Main.eval(code + """
+stepsCounting($steps)
+""")
+        if (result1 is ErrorResult) return result1
 
         val text = Main.os.toString().trim()
         if (text != stepsStr.trim()) {
-            return """
+            return error("""
 Тест не пройден:
 stepsCounting($steps)
 Ваш код выдал:
@@ -75,19 +76,24 @@ $text
 Но это не верно
 Ожидалось:
 $stepsStr
-"""
+""")
         }
     }
 
-    Main.eval("var result$rand: Int = -1")
-    Main.eval("moveToGoal({ step -> result$rand = step; step == $steps2 })")
-    val b = Main.eval("result$rand == $steps2") as Boolean
-
-    if (!b) {
-        return "Ваш код в moveToGoal не срабатывает на нужном шаге"
-    }
+    val rand = Random.nextInt(5, 30)
+    val steps2 = Random.nextInt(5, 30)
+    val result = Main.eval(code + """
+var result$rand: Int = -1
+moveToGoal { step ->
+    result$rand = step
+    step == $steps2
+}
+if (result$rand != $steps2) {
+    throw Exception("Ваш код в moveToGoal не срабатывает на нужном шаге")
+}
+""")
 
     System.setOut(Main.console)
 
-    return ""
+    return result
 }

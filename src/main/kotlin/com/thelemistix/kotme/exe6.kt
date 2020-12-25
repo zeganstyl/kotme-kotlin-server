@@ -1,38 +1,36 @@
 package com.thelemistix.kotme
 
-import kotlin.random.Random
+// Ready
+fun exe6(code: String): EvalResult {
+    return Main.eval(code + """
+val device = Device()
 
-fun exe6(): String {
-    val codes = HashMap<Int, String>()
+val codes = HashMap<Int, String>()
+for (j in 0 until 10) {
+    val code = kotlin.random.Random.nextInt(100, 999)
+    val value = "Пом. ${'$'}{kotlin.random.Random.nextInt(1, 400)}"
 
-    Main.eval("val device = Device()")
+    codes[code] = value
 
-    for (j in 0 until 10) {
-        val code = Random.nextInt(100, 999)
-        val value = "Пом. ${Random.nextInt(1, 400)}"
+    device.putCode(code, value.toString())
+}
 
-        codes[code] = value
-
-        Main.eval("device.putCode($code, \"$value\")")
+codes.entries.forEach {
+    if (device.getInfo(it.key) != codes[it.key]) {
+        throw Exception("getInfo не смог выдать пару ${'$'}{it.key} -> ${'$'}{it.value}")
     }
+}
 
-    codes.entries.forEach {
-        if (Main.eval("device.getInfo(${it.key})") != codes[it.key]) {
-            return "getInfo не смог выдать пару ${it.key} -> ${it.value}"
-        }
+val actualCodes = device.getCodes()
+if (actualCodes.size < codes.size) {
+    throw Exception("getCodes выдал не все коды, либо выдал пустой список")
+}
+
+for (i in actualCodes.indices) {
+    val code = actualCodes[i]
+    if (!codes.containsKey(code)) {
+        throw Exception("getCodes выдал не все коды, не хватает ${'$'}code")
     }
-
-    val actualCodes = Main.eval("device.getCodes()") as List<Int>
-    if (actualCodes.size < codes.size) {
-        return "getCodes выдал не все коды, либо выдал пустой список"
-    }
-
-    for (i in actualCodes.indices) {
-        val code = actualCodes[i]
-        if (!codes.containsKey(code)) {
-            return "getCodes выдал не все коды, не хватает $code"
-        }
-    }
-
-    return ""
+}
+""")
 }

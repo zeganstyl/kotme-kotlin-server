@@ -5,10 +5,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class ScriptService {
-    init {
-        Main.initiate()
-    }
-
     fun checkRunning(): String = "KOTme is running"
 
     fun checkExercise(param: Map<String, String>): String {
@@ -19,21 +15,20 @@ class ScriptService {
         var consoleLog = ""
 
         if (code != null) {
-            Main.bindings.clear()
             Main.os.reset()
             System.setOut(Main.ps)
 
             try {
-                Main.engine.eval(code, Main.bindings)
-
                 message = when (param["exercise"]?.toIntOrNull()) {
-                    1 -> exe1()
-                    2 -> exe2()
-                    3 -> exe3()
-                    4 -> exe4()
-                    5 -> exe5()
-                    6 -> exe6()
-                    7 -> exe7()
+//                    1 -> exe1(code)
+//                    2 -> exe2(code)
+//                    3 -> exe3(code)
+                    //4 -> exe4()
+//                    5 -> exe5()
+//                    6 -> exe6()
+//                    7 -> exe7()
+//                    8 -> exe8()
+//                    9 -> exe9()
                     else -> {
                         status = ResultStatus.ServerError
                         "Не верно указан номер задачи"

@@ -2,55 +2,57 @@ package com.thelemistix.kotme
 
 import kotlin.random.Random
 
-fun checkCard(cardName: String): String {
+fun cardCheckFun(rand: Int, classConstruct: String = "Card()", args: String = ""): String {
+    return """
+fun checkCard$rand($args) {
+    val card = $classConstruct
     val codes = HashMap<Int, String>()
-    Main.eval("val $cardName = Card()")
-
+    
     for (j in 0 until 10) {
-        val code = Random.nextInt(100, 999)
+        val code = kotlin.random.Random.nextInt(100, 999)
         val value = "Пом. ${Random.nextInt(1, 400)}"
-
+    
         codes[code] = value
-
-        Main.eval("$cardName[$code] = \"$value\")")
+    
+        card[code] = value
     }
-
+    
     codes.entries.forEach {
-        if (Main.eval("$cardName[${it.key}]") != codes[it.key]) {
-            return "Карта памяти не смогла выдать пару ${it.key} -> ${it.value}"
+        if (card[it.key] != codes[it.key]) {
+            throw Exception("Карта памяти не смогла выдать пару ${'$'}{it.key} -> ${'$'}{it.value}")
         }
     }
-
-    Main.eval("device.card = $cardName")
+    
+    device.card = card
+    
     codes.entries.forEach {
-        if (Main.eval("device.getInfo(${it.key})") != codes[it.key]) {
-            return "Прибор не смог выдать пару ${it.key} -> ${it.value}"
+        if (device.getInfo(it.key) != codes[it.key]) {
+            throw Exception("Прибор не смог выдать пару ${'$'}{it.key} -> ${'$'}{it.value}")
         }
     }
-
-    val actualCodes = Main.eval("device.getCodes()") as List<Int>
+    
+    val actualCodes = device.getCodes()
     if (actualCodes.size < codes.size) {
-        return "getCodes выдал не все коды, либо выдал пустой список"
+        throw Exception("getCodes выдал не все коды, либо выдал пустой список")
     }
-
+    
     for (i in actualCodes.indices) {
         val code = actualCodes[i]
         if (!codes.containsKey(code)) {
-            return "getCodes выдал не все коды, не хватает $code"
+            throw Exception("getCodes выдал не все коды, не хватает ${'$'}code")
         }
     }
-
-    return ""
+}
+"""
 }
 
-fun exe7(): String {
-    Main.eval("val device = Device()")
+// Ready
+fun exe7(code: String): EvalResult {
+    val rand = rand()
 
-    var result = checkCard("card1")
-    if (result.isNotEmpty()) return result
-
-    result = checkCard("card2")
-    if (result.isNotEmpty()) return result
-
-    return ""
+    return Main.eval(code + """
+val device = Device()
+${cardCheckFun(rand, "Card()")}
+checkCard$rand()
+""")
 }

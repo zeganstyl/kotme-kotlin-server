@@ -2,44 +2,53 @@ package com.thelemistix.kotme
 
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import javax.script.ScriptEngineManager
+import kotlin.script.experimental.api.*
+import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 object Main {
-    val manager = ScriptEngineManager()
-    val engine = manager.getEngineByExtension("kts")!!
+    val code = SourceCodeImp()
+    val host = BasicJvmScriptingHost()
+    val compilationConfiguration = ScriptCompilationConfiguration()
 
     val os = ByteArrayOutputStream()
     val ps = PrintStream(os)
     val console = System.out
 
-    val bindings = engine.createBindings()
-
     fun initiate() {
-        engine.eval("fun main(){}")
+        os.reset()
+        //System.setOut(ps)
+
+        val result = exe9("""
+fun <T> checkUSBToken(obj: Any): T? {
+    return if (obj is USBToken) {
+        obj as T
+    } else {
+        null
     }
+}
+""")
 
-    fun eval(code: String): Any? = engine.eval(code, bindings)
-
-    fun script() {
-        val manager = ScriptEngineManager()
-        val engine = manager.getEngineByExtension("kts")!!
-
-        val os = ByteArrayOutputStream()
-        val ps = PrintStream(os)
-        val console = System.out
-
-        val bindings = engine.createBindings()
-        bindings.clear()
-
-        System.setOut(ps)
-        engine.eval("""
-fun stepsCounting() {}
-
-fun moveToGoal() {}
-        """.trimIndent(), bindings)
-        engine.eval("moveToGoal()", bindings)
         System.setOut(console)
 
-        println(os.toString())
+        when (result) {
+            is ResultWithDiagnostics.Failure -> {
+                println("Ошибки компиляции кода")
+                result.reports.forEach { println(it.render()) }
+            }
+            is ResultWithDiagnostics.Success -> {
+                val returnValue = result.value.returnValue
+                if (returnValue is ResultValue.Error) {
+                    println("Ошибки выполнения кода")
+                    println(returnValue.error.message)
+                } else {
+                    println("Выполнено успешно")
+                }
+            }
+        }
+    }
+
+    fun eval(code: String): ResultWithDiagnostics<EvaluationResult> {
+        Main.code.text = code
+        return host.eval(Main.code, compilationConfiguration, null)
     }
 }
