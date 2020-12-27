@@ -5,4 +5,5 @@ object ResultStatus {
     const val ExecutionErrors = 2
     const val TestsFail = 3
     const val ServerError = 4
+    const val IncorrectInput = 5
 }

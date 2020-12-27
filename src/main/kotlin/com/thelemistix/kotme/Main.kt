@@ -15,36 +15,58 @@ object Main {
     val console = System.out
 
     fun initiate() {
-        os.reset()
-        //System.setOut(ps)
-
-        val result = exe9("""
-fun <T> checkUSBToken(obj: Any): T? {
-    return if (obj is USBToken) {
-        obj as T
-    } else {
-        null
-    }
-}
-""")
-
-        System.setOut(console)
-
-        when (result) {
-            is ResultWithDiagnostics.Failure -> {
-                println("Ошибки компиляции кода")
-                result.reports.forEach { println(it.render()) }
-            }
-            is ResultWithDiagnostics.Success -> {
-                val returnValue = result.value.returnValue
-                if (returnValue is ResultValue.Error) {
-                    println("Ошибки выполнения кода")
-                    println(returnValue.error.message)
-                } else {
-                    println("Выполнено успешно")
-                }
-            }
-        }
+//        os.reset()
+//        //System.setOut(ps)
+//
+//        val result = exe10("""
+//open class Tag() {
+//    val children = ArrayList<Tag>()
+//}
+//
+//class Table: Tag() {
+//    fun tr(block: TR.() -> Unit) {
+//        children.add(TR().apply(block))
+//    }
+//}
+//
+//class TR: Tag() {
+//    fun td(block: TD.() -> Unit) {
+//        children.add(TD().apply(block))
+//    }
+//}
+//
+//class TD: Tag() {
+//    var text: String = ""
+//}
+//
+//class Html: Tag() {
+//    fun table(block: Table.() -> Unit) {
+//        children.add(Table().apply(block))
+//    }
+//}
+//
+//fun html(block: Html.() -> Unit) {
+//    Html().apply(block)
+//}
+//""")
+//
+//        System.setOut(console)
+//
+//        when (result) {
+//            is ResultWithDiagnostics.Failure -> {
+//                println("Ошибки компиляции кода")
+//                result.reports.forEach { println(it.render()) }
+//            }
+//            is ResultWithDiagnostics.Success -> {
+//                val returnValue = result.value.returnValue
+//                if (returnValue is ResultValue.Error) {
+//                    println("Ошибки выполнения кода")
+//                    println(returnValue.error.message)
+//                } else {
+//                    println("Выполнено успешно")
+//                }
+//            }
+//        }
     }
 
     fun eval(code: String): ResultWithDiagnostics<EvaluationResult> {
