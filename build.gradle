@@ -1,36 +1,30 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.4.10"
-    id("org.springframework.boot") version "1.5.3.RELEASE"
-    id("application")
+    id("org.jetbrains.kotlin.jvm") version "1.4.21"
 }
 
 repositories {
     jcenter()
 }
 
-application {
-    mainClass = 'com.thelemistix.kotme.Application'
-    archivesBaseName = "kotme-kotlin-server"
-}
-
-def kotlinVersion = "1.4.10"
+def kotlinVersion = "1.4.21"
+def ktor_version = "1.4.1"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-web")
 
     implementation("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion")
-    runtimeOnly("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
 }
 
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.thelemistix.kotme.Application'
+                'Main-Class': 'com.thelemistix.kotme.Main'
         )
     }
 
