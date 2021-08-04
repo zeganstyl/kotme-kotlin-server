@@ -1,0 +1,263 @@
+package com.kotme.routes
+
+import com.kotme.EvalResult
+import com.kotme.Main
+import com.kotme.ResultStatus
+import com.kotme.*
+import com.kotme.model.*
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.util.*
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.mindrot.jbcrypt.BCrypt
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import kotlin.script.experimental.api.ResultValue
+import kotlin.script.experimental.api.ResultWithDiagnostics
+
+fun ApplicationCall.int(name: String): Int = parameters.getOrFail<Int>(name)
+
+class ForbiddenException: Exception("Forbidden")
+
+class UnauthorizedException: Exception("Unauthorized")
+
+fun hashPassword(password: String): String = BCrypt.hashpw(password, BCrypt.gensalt(12))
+
+fun genPasswordHash(): String = hashPassword(BCrypt.gensalt(12))
+
+fun authenticate(login: String, password: String): User? {
+    if (login.isEmpty()) return null
+    val u = User.find { Users.login eq login }.firstOrNull()
+    return if (u != null && u.password.isNotEmpty() && BCrypt.checkpw(password, u.password)) u else null
+}
+
+suspend fun ApplicationCall.authorizeAPI(accessGranted: User.() -> Boolean, block: suspend (user: User) -> Unit) {
+    newSuspendedTransaction {
+        val user = authentication.principal<User>() ?: throw UnauthorizedException()
+        if (accessGranted(user)) block(user) else throw ForbiddenException()
+    }
+}
+
+suspend fun ApplicationCall.authorizeAPI(accessGranted: Boolean, block: suspend (user: User) -> Unit) {
+    newSuspendedTransaction {
+        val user = authentication.principal<User>() ?: throw UnauthorizedException()
+        if (accessGranted) block(user) else throw ForbiddenException()
+    }
+}
+
+suspend fun ApplicationCall.authorizeAPI(block: suspend (user: User) -> Unit) {
+    val user = authentication.principal<User>() ?: throw UnauthorizedException()
+    newSuspendedTransaction { block(user) }
+}
+
+fun Routing.apiRoutes() {
+    route("/api") {
+        authenticate("basic") {
+            route("/token") {
+                get {
+                    call.authorizeAPI {
+                        call.respond(HttpStatusCode.OK, JwtConfig.makeToken(it))
+                    }
+                }
+            }
+        }
+        route("/signup") {
+            post {
+                newSuspendedTransaction {
+                    val name = call.parameters.getOrFail<String>("name")
+                    if (name.isEmpty()) {
+                        call.respond(HttpStatusCode.BadRequest, "Name is empty")
+                    }
+
+                    val login = call.parameters.getOrFail<String>("login")
+                    if (Users.select { Users.login eq login }.count() > 0) {
+                        call.respond(HttpStatusCode.BadRequest, "Login already exists")
+                    }
+
+                    val password = call.parameters.getOrFail<String>("password")
+                    if (password.isEmpty()) {
+                        call.respond(HttpStatusCode.BadRequest, "Incorrect password")
+                    }
+                    User.new {
+                        this.name = name
+                        this.login = login
+                        this.password = hashPassword(password)
+                    }
+                    call.respond("")
+                }
+            }
+        }
+        route("/achievements") {
+            get {
+                newSuspendedTransaction {
+                    call.respond(Achievement.all().map { AchievementDTO(it) })
+                }
+            }
+        }
+        authenticate("jwt") {
+            route("/user") {
+                route("/codes") {
+                    get {
+                        call.authorizeAPI { user ->
+                            call.respond(user.codes.map { UserCodeDTO(it) })
+                        }
+                    }
+                    route("/{exercise}") {
+                        get {
+                            call.authorizeAPI { user ->
+                                val exe = call.int("exercise")
+                                call.respond(
+                                    UserCodeDTO(
+                                        UserCode.wrapRow(
+                                            UserCodes.select { (UserCodes.user eq user.id) and (UserCodes.exercise eq exe) }.firstOrNull() ?:
+                                            throw NotFoundException()
+                                        )
+                                    )
+                                )
+                            }
+                        }
+                        post {
+                            call.authorizeAPI { user ->
+                                var message = ""
+                                var status = ResultStatus.TestsSuccess
+                                var consoleLog = ""
+
+                                val code = call.receiveText()
+                                val exercise = Exercise[call.parameters.getOrFail<Int>("exercise")]
+
+                                val row = UserCodes.select { (UserCodes.user eq user.id.value) and (UserCodes.exercise eq exercise.id.value) }.firstOrNull()
+                                val userCode = if (row != null) {
+                                    UserCode.wrapRow(row).apply {
+                                        this.code = code
+                                    }
+                                } else {
+                                    UserCode.new {
+                                        this.exercise = exercise
+                                        this.user = user
+                                        this.code = code
+                                    }
+                                }
+
+                                val os = ByteArrayOutputStream()
+                                val ps = PrintStream(os)
+
+                                System.setOut(ps)
+
+                                try {
+                                    val result: EvalResult? = when (exercise.number) {
+                                        1 -> exe1(code, os)
+                                        2 -> exe2(code)
+                                        3 -> exe3(code)
+                                        4 -> exe4(code)
+                                        5 -> exe5(code)
+                                        6 -> exe6(code)
+                                        7 -> exe7(code)
+                                        8 -> exe8(code)
+                                        9 -> exe9(code)
+                                        10 -> exe10(code)
+                                        else -> {
+                                            status = ResultStatus.IncorrectInput
+                                            message = "Не верно указан номер задачи"
+                                            null
+                                        }
+                                    }
+
+                                    System.setOut(Main.console)
+
+                                    when (result) {
+                                        is ResultWithDiagnostics.Failure -> {
+                                            status = ResultStatus.TestsFail
+                                            val str = StringBuilder()
+                                            str.append("Ошибки компиляции кода\n")
+                                            result.reports.forEach {
+                                                str.append(it.render())
+                                                str.append('\n')
+                                            }
+                                            message = str.toString()
+                                        }
+                                        is ResultWithDiagnostics.Success -> {
+                                            status = ResultStatus.TestsSuccess
+                                            val returnValue = result.value.returnValue
+                                            if (returnValue is ResultValue.Error) {
+                                                status = ResultStatus.TestsFail
+                                                message = "Ошибки выполнения кода\n"
+                                                message += returnValue.error.message
+                                            }
+                                        }
+                                    }
+
+                                    consoleLog = os.toString()
+
+                                    if (message.isNotEmpty() && status == ResultStatus.TestsSuccess) {
+                                        status = ResultStatus.TestsFail
+                                    }
+                                } catch (ex: Exception) {
+                                    status = ResultStatus.ServerError
+                                    consoleLog = os.toString()
+                                    message = "Ошибка сервера"
+                                }
+
+                                System.setOut(Main.console)
+
+                                // new achievements ====
+                                val newAchievements = ArrayList<AchievementDTO>()
+                                if (status == ResultStatus.TestsSuccess) {
+                                    if (userCode.completeTime == 0L) {
+                                        userCode.completeTime = System.currentTimeMillis()
+                                    }
+
+                                    val achivs = user.achievements
+                                    if (exercise.number == 1) {
+                                        if (achivs.find { it.achievement.id.value == 1 } == null) {
+                                            val ach = Achievement[1]
+                                            UserAchievement.new(user, ach)
+                                            newAchievements.add(AchievementDTO(ach))
+                                        }
+                                    }
+                                    if (achivs.find { it.achievement.id.value == 2 } == null) {
+                                        if (user.codes.count { it.completeTime != 0L } >= 5) {
+                                            val ach = Achievement[2]
+                                            UserAchievement.new(user, ach)
+                                            newAchievements.add(AchievementDTO(ach))
+                                        }
+                                    }
+                                    if (achivs.find { it.achievement.id.value == 3 } == null) {
+                                        if (user.codes.count { it.completeTime != 0L } == 10) {
+                                            val ach = Achievement[3]
+                                            UserAchievement.new(user, ach)
+                                            newAchievements.add(AchievementDTO(ach))
+                                        }
+                                    }
+                                }
+                                // ====
+
+                                call.respond(ResultMessage(status, message, consoleLog, newAchievements))
+                            }
+                        }
+                    }
+                }
+                route("/achievements") {
+                    get {
+                        call.authorizeAPI { user ->
+                            call.respond(user.achievements.map { UserAchievementDTO(it) })
+                        }
+                    }
+                }
+            }
+        }
+        route("/exercises") {
+            get {
+                newSuspendedTransaction {
+                    call.respond(Exercise.all().map { ExerciseDTO(it) })
+                }
+            }
+        }
+    }
+}

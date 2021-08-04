@@ -1,5 +1,5 @@
 {
   "name": "kotme",
-  "description": "KOTme kotlin server",
-  "addons": []
+  "description": "KOTme service",
+  "addons": ["heroku-postgresql:hobby-dev"]
 }
