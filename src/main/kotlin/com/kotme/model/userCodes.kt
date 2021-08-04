@@ -10,8 +10,9 @@ object UserCodes: IntIdTable() {
     val user = reference("user", Users)
     val exercise = reference("exercise", Exercises)
     val code = text("code")
-    val uploadTime = long("uploadTime").apply { defaultValueFun = { System.currentTimeMillis() } }
+    val lastModifiedTime = long("lastModifiedTime").apply { defaultValueFun = { System.currentTimeMillis() } }
     val completeTime = long("completeTime").default(0)
+    val resultStatus = enumeration("resultStatus", CodeCheckResultStatus::class).default(CodeCheckResultStatus.NoStatus)
 }
 
 class UserCode(id: EntityID<Int>) : IntEntity(id) {
@@ -19,8 +20,9 @@ class UserCode(id: EntityID<Int>) : IntEntity(id) {
     var user by User referencedOn UserCodes.user
     var exercise by Exercise referencedOn UserCodes.exercise
     var code by UserCodes.code
-    var uploadTime by UserCodes.uploadTime
+    var lastModifiedTime by UserCodes.lastModifiedTime
     var completeTime by UserCodes.completeTime
+    var resultStatus by UserCodes.resultStatus
 }
 
 @Serializable
@@ -29,13 +31,15 @@ data class UserCodeDTO(
     var exercise: Int,
     var code: String,
     var uploadTime: Long,
-    var completeTime: Long
+    var completeTime: Long,
+    var resultStatus: CodeCheckResultStatus
 ) {
     constructor(code: UserCode): this(
         code.user.id.value,
         code.exercise.id.value,
         code.code,
-        code.uploadTime,
-        code.completeTime
+        code.lastModifiedTime,
+        code.completeTime,
+        code.resultStatus
     )
 }

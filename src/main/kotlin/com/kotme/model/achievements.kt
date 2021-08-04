@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.select
 object Achievements: IntIdTable() {
     val name = text("name")
     val conditionText = text("conditionText")
+    val lastModifiedTime = long("lastModifiedTime").apply { defaultValueFun = { System.currentTimeMillis() } }
 }
 
 class Achievement(id: EntityID<Int>) : IntEntity(id) {
@@ -25,6 +26,7 @@ class Achievement(id: EntityID<Int>) : IntEntity(id) {
     }
     var name by Achievements.name
     var conditionText by Achievements.conditionText
+    var lastModifiedTime by Achievements.lastModifiedTime
 }
 
 @Serializable

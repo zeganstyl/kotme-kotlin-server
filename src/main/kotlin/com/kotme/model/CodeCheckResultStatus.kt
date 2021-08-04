@@ -1,6 +1,7 @@
-package com.kotme
+package com.kotme.model
 
-enum class ResultStatus {
+enum class CodeCheckResultStatus {
+    NoStatus,
     TestsSuccess,
     ExecutionErrors,
     TestsFail,

@@ -123,11 +123,53 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Achievement"
+                    "$ref": "#/components/schemas/UserAchievement"
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/user/updates": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "GetUpdates",
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "description": "Time from which to start viewing changes",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "items": {
+                    "$ref": "#/components/schemas/Updates"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -234,7 +276,10 @@
           "content": {
             "text/plain": {
               "schema": {
-                "type": "string"
+                "type": "object",
+                "items": {
+                  "$ref": "#/components/schemas/CodeCheckResult"
+                }
               }
             }
           }
@@ -321,7 +366,7 @@
           "code": {
             "type": "string"
           },
-          "uploadTime": {
+          "lastModifiedTime": {
             "type": "integer",
             "format": "int64"
           }
@@ -330,6 +375,9 @@
       "Exercise": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer"
+          },
           "number": {
             "type": "integer"
           },
@@ -344,6 +392,91 @@
           },
           "initialCode": {
             "type": "string"
+          }
+        }
+      },
+      "UserAchievement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "receiveTime": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "progress": {
+            "type": "integer"
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCode"
+            }
+          },
+          "achievements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserAchievement"
+            }
+          }
+        }
+      },
+      "Updates": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Exercise"
+            }
+          },
+          "achievements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Achievement"
+            }
+          }
+        }
+      },
+      "CodeCheckResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NoStatus",
+              "TestsSuccess",
+              "ExecutionErrors",
+              "TestsFail",
+              "ServerError"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "consoleLog": {
+            "type": "string"
+          },
+          "newAchievements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserAchievement"
+            }
           }
         }
       }

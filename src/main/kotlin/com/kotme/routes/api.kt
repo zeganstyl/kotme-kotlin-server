@@ -2,7 +2,7 @@ package com.kotme.routes
 
 import com.kotme.EvalResult
 import com.kotme.Main
-import com.kotme.ResultStatus
+import com.kotme.model.CodeCheckResultStatus
 import com.kotme.*
 import com.kotme.model.*
 import io.ktor.application.*
@@ -103,6 +103,20 @@ fun Routing.apiRoutes() {
         }
         authenticate("jwt") {
             route("/user") {
+                route("/updates") {
+                    get {
+                        call.authorizeAPI { user ->
+                            val from = call.parameters.getOrFail<Long>("from")
+                            call.respond(
+                                UpdatesDTO(
+                                    UserDTO(user, from),
+                                    Exercise.find { Exercises.lastModifiedTime greater from }.map { ExerciseDTO(it) },
+                                    Achievement.find { Achievements.lastModifiedTime greater from }.map { AchievementDTO(it) }
+                                )
+                            )
+                        }
+                    }
+                }
                 route("/codes") {
                     get {
                         call.authorizeAPI { user ->
@@ -126,7 +140,7 @@ fun Routing.apiRoutes() {
                         post {
                             call.authorizeAPI { user ->
                                 var message = ""
-                                var status = ResultStatus.TestsSuccess
+                                var status = CodeCheckResultStatus.TestsSuccess
                                 var consoleLog = ""
 
                                 val code = call.receiveText()
@@ -162,18 +176,14 @@ fun Routing.apiRoutes() {
                                         8 -> exe8(code)
                                         9 -> exe9(code)
                                         10 -> exe10(code)
-                                        else -> {
-                                            status = ResultStatus.IncorrectInput
-                                            message = "Не верно указан номер задачи"
-                                            null
-                                        }
+                                        else -> throw NotFoundException()
                                     }
 
                                     System.setOut(Main.console)
 
                                     when (result) {
                                         is ResultWithDiagnostics.Failure -> {
-                                            status = ResultStatus.TestsFail
+                                            status = CodeCheckResultStatus.TestsFail
                                             val str = StringBuilder()
                                             str.append("Ошибки компиляции кода\n")
                                             result.reports.forEach {
@@ -183,10 +193,10 @@ fun Routing.apiRoutes() {
                                             message = str.toString()
                                         }
                                         is ResultWithDiagnostics.Success -> {
-                                            status = ResultStatus.TestsSuccess
+                                            status = CodeCheckResultStatus.TestsSuccess
                                             val returnValue = result.value.returnValue
                                             if (returnValue is ResultValue.Error) {
-                                                status = ResultStatus.TestsFail
+                                                status = CodeCheckResultStatus.TestsFail
                                                 message = "Ошибки выполнения кода\n"
                                                 message += returnValue.error.message
                                             }
@@ -195,11 +205,11 @@ fun Routing.apiRoutes() {
 
                                     consoleLog = os.toString()
 
-                                    if (message.isNotEmpty() && status == ResultStatus.TestsSuccess) {
-                                        status = ResultStatus.TestsFail
+                                    if (message.isNotEmpty() && status == CodeCheckResultStatus.TestsSuccess) {
+                                        status = CodeCheckResultStatus.TestsFail
                                     }
                                 } catch (ex: Exception) {
-                                    status = ResultStatus.ServerError
+                                    status = CodeCheckResultStatus.ServerError
                                     consoleLog = os.toString()
                                     message = "Ошибка сервера"
                                 }
@@ -207,8 +217,8 @@ fun Routing.apiRoutes() {
                                 System.setOut(Main.console)
 
                                 // new achievements ====
-                                val newAchievements = ArrayList<AchievementDTO>()
-                                if (status == ResultStatus.TestsSuccess) {
+                                val newAchievements = ArrayList<UserAchievementDTO>()
+                                if (status == CodeCheckResultStatus.TestsSuccess) {
                                     if (userCode.completeTime == 0L) {
                                         userCode.completeTime = System.currentTimeMillis()
                                     }
@@ -216,29 +226,23 @@ fun Routing.apiRoutes() {
                                     val achivs = user.achievements
                                     if (exercise.number == 1) {
                                         if (achivs.find { it.achievement.id.value == 1 } == null) {
-                                            val ach = Achievement[1]
-                                            UserAchievement.new(user, ach)
-                                            newAchievements.add(AchievementDTO(ach))
+                                            newAchievements.add(UserAchievementDTO(UserAchievement.new(user, Achievement[1])))
                                         }
                                     }
                                     if (achivs.find { it.achievement.id.value == 2 } == null) {
                                         if (user.codes.count { it.completeTime != 0L } >= 5) {
-                                            val ach = Achievement[2]
-                                            UserAchievement.new(user, ach)
-                                            newAchievements.add(AchievementDTO(ach))
+                                            newAchievements.add(UserAchievementDTO(UserAchievement.new(user, Achievement[2])))
                                         }
                                     }
                                     if (achivs.find { it.achievement.id.value == 3 } == null) {
                                         if (user.codes.count { it.completeTime != 0L } == 10) {
-                                            val ach = Achievement[3]
-                                            UserAchievement.new(user, ach)
-                                            newAchievements.add(AchievementDTO(ach))
+                                            newAchievements.add(UserAchievementDTO(UserAchievement.new(user, Achievement[3])))
                                         }
                                     }
                                 }
                                 // ====
 
-                                call.respond(ResultMessage(status, message, consoleLog, newAchievements))
+                                call.respond(CodeCheckResult(status, message, consoleLog, newAchievements))
                             }
                         }
                     }

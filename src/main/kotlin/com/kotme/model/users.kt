@@ -1,6 +1,7 @@
 package com.kotme.model
 
 import io.ktor.auth.*
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -22,4 +23,26 @@ class User(id: EntityID<Int>) : IntEntity(id), Principal {
 
     val codes by UserCode referrersOn UserCodes.user
     val achievements by UserAchievement referrersOn UserAchievements.user
+}
+
+@Serializable
+data class UserDTO(
+    val name: String,
+    val progress: Int,
+    val codes: List<UserCodeDTO>,
+    val achievements: List<UserAchievementDTO>
+) {
+    constructor(user: User): this(
+        user.name,
+        user.progress,
+        user.codes.map { UserCodeDTO(it) },
+        user.achievements.map { UserAchievementDTO(it) }
+    )
+
+    constructor(user: User, from: Long): this(
+        user.name,
+        user.progress,
+        user.codes.mapNotNull { if (it.lastModifiedTime > from) UserCodeDTO(it) else null },
+        user.achievements.mapNotNull { if (it.receiveTime > from) UserAchievementDTO(it) else null }
+    )
 }

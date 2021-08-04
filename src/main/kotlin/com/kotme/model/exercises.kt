@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.select
 object Exercises: IntIdTable() {
     val number = integer("number")
     val name = text("name")
+    val lastModifiedTime = long("lastModifiedTime").apply { defaultValueFun = { System.currentTimeMillis() } }
 }
 
 class Exercise(id: EntityID<Int>) : IntEntity(id) {
@@ -26,10 +27,12 @@ class Exercise(id: EntityID<Int>) : IntEntity(id) {
     }
     var number by Exercises.number
     var name by Exercises.name
+    var lastModifiedTime by Exercises.lastModifiedTime
 }
 
 @Serializable
 data class ExerciseDTO(
+    var id: Int,
     var number: Int,
     var name: String,
     var lessonText: String,
@@ -37,6 +40,7 @@ data class ExerciseDTO(
     var initialCode: String
 ) {
     constructor(e: Exercise): this(
+        e.id.value,
         e.number,
         e.name,
         String(Main::class.java.getResourceAsStream("/static/lessons/${e.number}lesson.md")!!.readAllBytes()),
