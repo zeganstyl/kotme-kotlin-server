@@ -23,8 +23,6 @@ main()
 
     if (result is ErrorResult) return result
 
-    System.setOut(Main.console)
-
     val text = os.toString().trim()
     return if (text != "Hello Kotlin!") {
         error("Ваш код выдал:\n$text\nНо это не верно.")
@@ -50,9 +48,9 @@ for (i in 0 until 10) {
 )
 
 // Ready
-fun exe3(code: String): EvalResult {
+fun exe3(code: String, os: ByteArrayOutputStream): EvalResult {
     for (i in 0 until 3) {
-        Main.os.reset()
+        os.reset()
 
         val steps = Random.nextInt(5, 30)
 
@@ -67,7 +65,7 @@ stepsCounting($steps)
 """)
         if (result1 is ErrorResult) return result1
 
-        val text = Main.os.toString().trim()
+        val text = os.toString().trim()
         if (text != stepsStr.trim()) {
             return error("""
 Тест не пройден:
@@ -93,8 +91,6 @@ if (result$rand != $steps2) {
     throw Exception("Ваш код в moveToGoal не срабатывает на нужном шаге")
 }
 """)
-
-    System.setOut(Main.console)
 
     return result
 }

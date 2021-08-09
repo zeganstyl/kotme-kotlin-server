@@ -32,8 +32,8 @@ class Achievement(id: EntityID<Int>) : IntEntity(id) {
 @Serializable
 data class AchievementDTO(
     val id: Int,
-    var name: String,
-    var conditionText: String
+    val name: String,
+    val conditionText: String
 ) {
     constructor(a: Achievement): this(a.id.value, a.name, a.conditionText)
 }

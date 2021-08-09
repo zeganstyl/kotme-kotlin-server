@@ -30,8 +30,6 @@ class UnauthorizedException: Exception("Unauthorized")
 
 fun hashPassword(password: String): String = BCrypt.hashpw(password, BCrypt.gensalt(12))
 
-fun genPasswordHash(): String = hashPassword(BCrypt.gensalt(12))
-
 fun authenticate(login: String, password: String): User? {
     if (login.isEmpty()) return null
     val u = User.find { Users.login eq login }.firstOrNull()
@@ -141,7 +139,7 @@ fun Routing.apiRoutes() {
                             call.authorizeAPI { user ->
                                 var message = ""
                                 var status = CodeCheckResultStatus.TestsSuccess
-                                var consoleLog = ""
+                                var consoleLog: String
 
                                 val code = call.receiveText()
                                 val exercise = Exercise[call.parameters.getOrFail<Int>("exercise")]
@@ -168,7 +166,7 @@ fun Routing.apiRoutes() {
                                     val result: EvalResult? = when (exercise.number) {
                                         1 -> exe1(code, os)
                                         2 -> exe2(code)
-                                        3 -> exe3(code)
+                                        3 -> exe3(code, os)
                                         4 -> exe4(code)
                                         5 -> exe5(code)
                                         6 -> exe6(code)

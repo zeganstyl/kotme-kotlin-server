@@ -25,20 +25,14 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import java.net.URI
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 object Main {
     val host = BasicJvmScriptingHost()
-    val compilationConfiguration = ScriptCompilationConfiguration {
-        this.dependencies
-    }
+    val compilationConfiguration = ScriptCompilationConfiguration()
 
-    val os = ByteArrayOutputStream()
-    val ps = PrintStream(os)
     val console = System.out
 
     @JvmStatic
@@ -89,10 +83,12 @@ object Main {
                     Exercise.new(9, "Обобщения")
                     Exercise.new(10, "DSL")
                 }
-                if (Achievement.count() < 3) {
+                if (Achievement.count() < 5) {
                     Achievement.new("Познакомься с Котлином", "Выполните первое задание")
-                    Achievement.new("Подержи мою шляпу", "Выполните 5 заданий")
-                    Achievement.new("Искатель приключений", "Выполните все задания")
+                    Achievement.new("Дальше-интереснее", "Выполните 2 задание")
+                    Achievement.new("На половине пути", "Выполните 5 заданий")
+                    Achievement.new("Почти у цели", "Выполните 9 задание")
+                    Achievement.new("Искатель сокровищ", "Выполните все задания")
                 }
             }
 
@@ -153,80 +149,6 @@ object Main {
                     call.respondRedirect("/docs/index.html")
                 }
                 apiRoutes()
-//                post {
-//                    val param = call.receiveParameters()
-//                    val code = param["code"]
-//
-//                    var message = ""
-//                    var status = ResultStatus.TestsSuccess
-//                    var consoleLog = ""
-//
-//                    if (code != null) {
-//                        os.reset()
-//                        System.setOut(ps)
-//
-//                        try {
-//                            val result: EvalResult? = when (param["exercise"]?.toIntOrNull()) {
-//                                1 -> exe1(code)
-//                                2 -> exe2(code)
-//                                3 -> exe3(code)
-//                                4 -> exe4(code)
-//                                5 -> exe5(code)
-//                                6 -> exe6(code)
-//                                7 -> exe7(code)
-//                                8 -> exe8(code)
-//                                9 -> exe9(code)
-//                                10 -> exe10(code)
-//                                else -> {
-//                                    status = ResultStatus.IncorrectInput
-//                                    message = "Не верно указан номер задачи"
-//                                    null
-//                                }
-//                            }
-//
-//                            System.setOut(console)
-//
-//                            when (result) {
-//                                is ResultWithDiagnostics.Failure -> {
-//                                    status = ResultStatus.TestsFail
-//                                    val str = StringBuilder()
-//                                    str.append("Ошибки компиляции кода\n")
-//                                    result.reports.forEach {
-//                                        str.append(it.render())
-//                                        str.append('\n')
-//                                    }
-//                                    message = str.toString()
-//                                }
-//                                is ResultWithDiagnostics.Success -> {
-//                                    status = ResultStatus.TestsSuccess
-//                                    val returnValue = result.value.returnValue
-//                                    if (returnValue is ResultValue.Error) {
-//                                        status = ResultStatus.TestsFail
-//                                        message = "Ошибки выполнения кода\n"
-//                                        message += returnValue.error.message
-//                                    }
-//                                }
-//                            }
-//
-//                            consoleLog = os.toString()
-//
-//                            if (message.isNotEmpty() && status == ResultStatus.TestsSuccess) {
-//                                status = ResultStatus.TestsFail
-//                            }
-//                        } catch (ex: Exception) {
-//                            status = ResultStatus.ServerError
-//                            consoleLog = os.toString()
-//                            message = "Ошибка сервера"
-//                        }
-//
-//                        System.setOut(console)
-//                    } else {
-//                        status = ResultStatus.IncorrectInput
-//                        message = "Отсутствует исходный код по задаче"
-//                    }
-//
-//                    call.respond(ResultMessage(status, message, consoleLog))
-//                }
 
                 static("/static") {
                     resources("static")

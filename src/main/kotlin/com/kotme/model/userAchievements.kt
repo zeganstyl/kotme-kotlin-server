@@ -26,8 +26,8 @@ class UserAchievement(id: EntityID<Int>) : IntEntity(id) {
 
 @Serializable
 data class UserAchievementDTO(
-    var user: Int,
-    var achievement: Int,
+    val user: Int,
+    val achievement: Int,
     val receiveTime: Long
 ) {
     constructor(a: UserAchievement): this(a.user.id.value, a.achievement.id.value, a.receiveTime)

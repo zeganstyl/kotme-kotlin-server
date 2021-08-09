@@ -27,12 +27,14 @@ class User(id: EntityID<Int>) : IntEntity(id), Principal {
 
 @Serializable
 data class UserDTO(
+    val id: Int,
     val name: String,
     val progress: Int,
     val codes: List<UserCodeDTO>,
     val achievements: List<UserAchievementDTO>
 ) {
     constructor(user: User): this(
+        user.id.value,
         user.name,
         user.progress,
         user.codes.map { UserCodeDTO(it) },
@@ -40,6 +42,7 @@ data class UserDTO(
     )
 
     constructor(user: User, from: Long): this(
+        user.id.value,
         user.name,
         user.progress,
         user.codes.mapNotNull { if (it.lastModifiedTime > from) UserCodeDTO(it) else null },

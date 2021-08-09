@@ -32,19 +32,27 @@ class Exercise(id: EntityID<Int>) : IntEntity(id) {
 
 @Serializable
 data class ExerciseDTO(
-    var id: Int,
-    var number: Int,
-    var name: String,
-    var lessonText: String,
-    var exerciseText: String,
-    var initialCode: String
+    val id: Int,
+    val number: Int,
+    val name: String,
+    val lessonText: String,
+    val storyText: String,
+    val exerciseText: String,
+    val initialCode: String,
+    val characterMessage: String
 ) {
     constructor(e: Exercise): this(
         e.id.value,
         e.number,
         e.name,
-        String(Main::class.java.getResourceAsStream("/static/lessons/${e.number}lesson.md")!!.readAllBytes()),
-        String(Main::class.java.getResourceAsStream("/static/lessons/${e.number}exercise.txt")!!.readAllBytes()),
-        String(Main::class.java.getResourceAsStream("/static/lessons/${e.number}code.kt")!!.readAllBytes())
+        readFileOrEmpty("/lessons/${e.number}lesson.md"),
+        readFileOrEmpty("/lessons/${e.number}story.txt"),
+        readFileOrEmpty("/lessons/${e.number}exercise.txt"),
+        readFileOrEmpty("/lessons/${e.number}code.kt"),
+        readFileOrEmpty("/lessons/${e.number}message.txt")
     )
+}
+
+fun readFileOrEmpty(file: String) = Main::class.java.getResourceAsStream(file)?.readAllBytes().run {
+    if (this != null) String(this) else ""
 }
