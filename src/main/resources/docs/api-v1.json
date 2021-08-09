@@ -387,10 +387,16 @@
           "lessonText": {
             "type": "string"
           },
+          "storyText": {
+            "type": "string"
+          },
           "exerciseText": {
             "type": "string"
           },
           "initialCode": {
+            "type": "string"
+          },
+          "characterMessage": {
             "type": "string"
           }
         }
@@ -410,6 +416,9 @@
       "User": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer"
+          },
           "name": {
             "type": "string"
           },
