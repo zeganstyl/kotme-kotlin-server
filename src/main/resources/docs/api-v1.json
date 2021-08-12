@@ -132,7 +132,7 @@
         }
       }
     },
-    "/api/user/updates": {
+    "/api/user/updates/{from}": {
       "get": {
         "security": [
           {
@@ -145,7 +145,7 @@
         ],
         "parameters": [
           {
-            "in": "query",
+            "in": "path",
             "name": "from",
             "required": true,
             "description": "Time from which to start viewing changes",

@@ -101,7 +101,7 @@ fun Routing.apiRoutes() {
         }
         authenticate("jwt") {
             route("/user") {
-                route("/updates") {
+                route("/updates/{from}") {
                     get {
                         call.authorizeAPI { user ->
                             val from = call.parameters.getOrFail<Long>("from")
