@@ -214,11 +214,16 @@ fun Routing.apiRoutes() {
 
                                 System.setOut(Main.console)
 
+                                val currentTime = System.currentTimeMillis()
+
+                                userCode.resultStatus = status
+                                userCode.lastModifiedTime = currentTime
+
                                 // new achievements ====
                                 val newAchievements = ArrayList<UserAchievementDTO>()
                                 if (status == CodeCheckResultStatus.TestsSuccess) {
                                     if (userCode.completeTime == 0L) {
-                                        userCode.completeTime = System.currentTimeMillis()
+                                        userCode.completeTime = currentTime
                                     }
 
                                     val achivs = user.achievements
