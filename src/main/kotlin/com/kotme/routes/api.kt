@@ -138,6 +138,7 @@ fun Routing.apiRoutes() {
                         post {
                             call.authorizeAPI { user ->
                                 var message = ""
+                                var errors = ""
                                 var status = CodeCheckResultStatus.TestsSuccess
                                 var consoleLog: String
 
@@ -196,7 +197,7 @@ fun Routing.apiRoutes() {
                                             if (returnValue is ResultValue.Error) {
                                                 status = CodeCheckResultStatus.TestsFail
                                                 message = "Ошибки выполнения кода\n"
-                                                message += returnValue.error.message
+                                                returnValue.error.message?.also { errors = it }
                                             }
                                         }
                                     }
@@ -212,11 +213,16 @@ fun Routing.apiRoutes() {
                                     message = "Ошибка сервера"
                                 }
 
+                                consoleLog = consoleLog.takeLast(65536)
+
                                 System.setOut(Main.console)
 
                                 val currentTime = System.currentTimeMillis()
 
                                 userCode.resultStatus = status
+                                userCode.resultMessage = message
+                                userCode.resultErrors = errors
+                                userCode.consoleLog = consoleLog
                                 userCode.lastModifiedTime = currentTime
 
                                 // new achievements ====
@@ -245,7 +251,7 @@ fun Routing.apiRoutes() {
                                 }
                                 // ====
 
-                                call.respond(CodeCheckResult(status, message, consoleLog, newAchievements))
+                                call.respond(CodeCheckResult(status, message, errors, consoleLog, newAchievements))
                             }
                         }
                     }

@@ -369,6 +369,26 @@
           "lastModifiedTime": {
             "type": "integer",
             "format": "int64"
+          },
+          "completeTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resultStatus": {
+            "type": "string",
+            "enum": [
+              "NoStatus",
+              "TestsSuccess",
+              "ExecutionErrors",
+              "TestsFail",
+              "ServerError"
+            ]
+          },
+          "resultMessage": {
+            "type": "string"
+          },
+          "resultErrors": {
+            "type": "string"
           }
         }
       },
@@ -476,6 +496,9 @@
             ]
           },
           "message": {
+            "type": "string"
+          },
+          "errors": {
             "type": "string"
           },
           "consoleLog": {
