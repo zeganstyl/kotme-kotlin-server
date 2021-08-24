@@ -1,5 +1,6 @@
-package com.kotme
+package com.kotme.exercise
 
+import com.kotme.Main
 import kotlin.random.Random
 
 fun cardCheckFun(rand: Int, classConstruct: String = "Card()", args: String = ""): String {
@@ -50,9 +51,11 @@ fun checkCard$rand($args) {
 fun exe7(code: String): EvalResult {
     val rand = rand()
 
-    return Main.eval(code + """
+    return Main.eval(
+        code + """
 val device = Device()
 ${cardCheckFun(rand, "Card()")}
 checkCard$rand()
-""")
+"""
+    )
 }

@@ -1,4 +1,4 @@
-package com.kotme.model
+package com.kotme.common
 
 import kotlinx.serialization.Serializable
 

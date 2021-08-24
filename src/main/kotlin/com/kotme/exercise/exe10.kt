@@ -1,7 +1,10 @@
-package com.kotme
+package com.kotme.exercise
+
+import com.kotme.Main
 
 fun exe10(code: String): EvalResult {
-    return Main.eval(code + """
+    return Main.eval(
+        code + """
 html {
     table {
         tr {
@@ -14,5 +17,6 @@ html {
         }
     }
 }
-""")
+"""
+    )
 }

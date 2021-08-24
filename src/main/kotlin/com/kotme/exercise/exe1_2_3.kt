@@ -1,5 +1,6 @@
-package com.kotme
+package com.kotme.exercise
 
+import com.kotme.Main
 import java.io.ByteArrayOutputStream
 import kotlin.random.Random
 import kotlin.script.experimental.api.EvaluationResult
@@ -17,9 +18,11 @@ fun error(text: String): ResultWithDiagnostics<EvaluationResult> = ResultWithDia
 
 // Ready
 fun exe1(code: String, os: ByteArrayOutputStream): EvalResult? {
-    val result = Main.eval(code + """
+    val result = Main.eval(
+        code + """
 main()
-""")
+"""
+    )
 
     if (result is ErrorResult) return result
 
@@ -30,7 +33,8 @@ main()
 }
 
 // Ready
-fun exe2(code: String): EvalResult = Main.eval(code + """
+fun exe2(code: String): EvalResult = Main.eval(
+    code + """
 for (i in 0 until 10) {
     val x1 = kotlin.random.Random.nextFloat() * 100f - 50f
     val y1 = kotlin.random.Random.nextFloat() * 100f - 50f
@@ -60,9 +64,11 @@ fun exe3(code: String, os: ByteArrayOutputStream): EvalResult {
             stepsStr += if (j == steps - 1) "Шаг ${j+1} последний\n" else "Шаг ${j+1} идем далее\n"
         }
 
-        val result1 = Main.eval(code + """
+        val result1 = Main.eval(
+            code + """
 stepsCounting($steps)
-""")
+"""
+        )
         if (result1 is ErrorResult) return result1
 
         val text = os.toString().trim()
@@ -81,7 +87,8 @@ $stepsStr
 
     val rand = Random.nextInt(5, 30)
     val steps2 = Random.nextInt(5, 30)
-    val result = Main.eval(code + """
+    val result = Main.eval(
+        code + """
 var result$rand: Int = -1
 moveToGoal { step ->
     result$rand = step
@@ -90,7 +97,8 @@ moveToGoal { step ->
 if (result$rand != $steps2) {
     throw Exception("Ваш код в moveToGoal не срабатывает на нужном шаге")
 }
-""")
+"""
+    )
 
     return result
 }

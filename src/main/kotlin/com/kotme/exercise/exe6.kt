@@ -1,8 +1,11 @@
-package com.kotme
+package com.kotme.exercise
+
+import com.kotme.Main
 
 // Ready
 fun exe6(code: String): EvalResult {
-    return Main.eval(code + """
+    return Main.eval(
+        code + """
 val device = Device()
 
 val codes = HashMap<Int, String>()
@@ -32,5 +35,6 @@ for (i in actualCodes.indices) {
         throw Exception("getCodes выдал не все коды, не хватает ${'$'}code")
     }
 }
-""")
+"""
+    )
 }

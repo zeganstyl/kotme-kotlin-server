@@ -1,6 +1,6 @@
-package com.kotme
+package com.kotme.exercise
 
-import kotlin.random.Random
+import com.kotme.Main
 
 // Ready
 fun exe4(code: String): EvalResult {
@@ -83,14 +83,16 @@ fun test$rand(k: Int, c: Int) {
 
 test$rand(1, 0)
 test$rand(3, 10)
-""")
+"""
+    )
 }
 
 // Ready
 fun exe5(code: String): EvalResult {
     val rand = rand()
 
-    return Main.eval(code + """
+    return Main.eval(
+        code + """
 fun checkItems$rand(items: List<String>): Map<String, Int> {
     val newItems = HashMap<String, Int>()
 
@@ -148,5 +150,6 @@ ${'$'}{it.key} - ${'$'}{it.value}
 
 test$rand(1, 0)
 test$rand(3, 10)
-""")
+"""
+    )
 }

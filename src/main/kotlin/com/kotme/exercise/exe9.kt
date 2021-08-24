@@ -1,9 +1,12 @@
-package com.kotme
+package com.kotme.exercise
+
+import com.kotme.Main
 
 // Ready
 fun exe9(code: String): EvalResult {
     val rand = rand()
-    return Main.eval(code + """
+    return Main.eval(
+        code + """
 class USBToken
 class USBTypeC
 class WiFiAdapter
@@ -21,5 +24,6 @@ arrayOf(USBTypeC(), WiFiAdapter(), BluetoothAdapter(), USBHardDrive(), USBFlashc
 if (checkUSBToken<USBToken>(token$rand) == null) {
     throw Exception("Возвращаемое значение не подходит: null")
 }
-""")
+"""
+    )
 }

@@ -13,6 +13,8 @@ val ktorVersion = "1.6.2"
 val exposedVersion = "0.32.1"
 
 dependencies {
+    implementation(project(":kotme-common"))
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
@@ -45,6 +47,9 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
 
     implementation("org.slf4j:slf4j-simple:1.7.30")
+
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
 }
 
 tasks.jar {

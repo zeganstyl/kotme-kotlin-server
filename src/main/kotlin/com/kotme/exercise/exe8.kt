@@ -1,10 +1,13 @@
-package com.kotme
+package com.kotme.exercise
+
+import com.kotme.Main
 
 // Ready
 fun exe8(code: String): EvalResult {
     val rand = rand()
 
-    return Main.eval(code + """
+    return Main.eval(
+        code + """
 val device = Device()
 ${cardCheckFun(rand, "cardIn", "cardIn: ICard")}
 
@@ -24,5 +27,6 @@ class PurpleCard: ICard {
 }
 
 checkCard$rand(PurpleCard())
-""")
+"""
+    )
 }

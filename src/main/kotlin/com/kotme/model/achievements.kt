@@ -1,6 +1,6 @@
 package com.kotme.model
 
-import kotlinx.serialization.Serializable
+import com.kotme.common.AchievementDTO
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -27,13 +27,6 @@ class Achievement(id: EntityID<Int>) : IntEntity(id) {
     var name by Achievements.name
     var conditionText by Achievements.conditionText
     var lastModifiedTime by Achievements.lastModifiedTime
-}
 
-@Serializable
-data class AchievementDTO(
-    val id: Int,
-    val name: String,
-    val conditionText: String
-) {
-    constructor(a: Achievement): this(a.id.value, a.name, a.conditionText)
+    fun dto(): AchievementDTO = AchievementDTO(id.value, name, conditionText)
 }

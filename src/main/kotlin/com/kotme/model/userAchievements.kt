@@ -1,6 +1,6 @@
 package com.kotme.model
 
-import kotlinx.serialization.Serializable
+import com.kotme.common.UserAchievementDTO
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -22,13 +22,10 @@ class UserAchievement(id: EntityID<Int>) : IntEntity(id) {
     var user by User referencedOn UserAchievements.user
     var achievement by Achievement referencedOn UserAchievements.achievement
     val receiveTime by UserAchievements.receiveTime
-}
 
-@Serializable
-data class UserAchievementDTO(
-    val user: Int,
-    val achievement: Int,
-    val receiveTime: Long
-) {
-    constructor(a: UserAchievement): this(a.user.id.value, a.achievement.id.value, a.receiveTime)
+    fun dto(): UserAchievementDTO = UserAchievementDTO(
+        user.id.value,
+        achievement.id.value,
+        receiveTime
+    )
 }
