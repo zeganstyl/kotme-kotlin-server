@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.21"
     kotlin("plugin.serialization") version "1.5.20"
+    application
 }
 
 repositories {
@@ -52,10 +53,20 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
 }
 
+val main = "com.kotme.MainKt"
+
+application {
+    mainClass.set(main)
+}
+
 tasks.jar {
+    archiveVersion.set("")
+
     manifest {
         attributes(
-            "Main-Class" to "com.kotme.Main"
+            mapOf(
+                "Main-Class" to main
+            )
         )
     }
 
