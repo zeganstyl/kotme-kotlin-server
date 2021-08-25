@@ -1,5 +1,7 @@
 import com.kotme.Main
+import com.kotme.model.User
 import com.kotme.module
+import com.kotme.routes.hashPassword
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -21,6 +23,14 @@ interface TestUtils {
                 SchemaUtils.drop(*Main.tables)
             }
         }
+    }
+
+    fun createUserRoot(): Int = transaction {
+        User.new {
+            name = "root"
+            login = "root"
+            password = hashPassword("root")
+        }.id.value
     }
 
     fun TestApplicationEngine.getHttp(uri: String, status: HttpStatusCode, content: String) {

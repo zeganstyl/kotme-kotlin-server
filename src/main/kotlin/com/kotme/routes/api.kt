@@ -16,6 +16,7 @@ import io.ktor.routing.*
 import io.ktor.util.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.mindrot.jbcrypt.BCrypt
 import java.io.ByteArrayOutputStream
@@ -31,9 +32,9 @@ class UnauthorizedException: Exception("Unauthorized")
 
 fun hashPassword(password: String): String = BCrypt.hashpw(password, BCrypt.gensalt(12))
 
-fun authenticate(login: String, password: String): User? {
+suspend fun authenticate(login: String, password: String): User? {
     if (login.isEmpty()) return null
-    val u = User.find { Users.login eq login }.firstOrNull()
+    val u = newSuspendedTransaction { User.find { Users.login eq login }.firstOrNull() }
     return if (u != null && u.password.isNotEmpty() && BCrypt.checkpw(password, u.password)) u else null
 }
 

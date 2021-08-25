@@ -8,7 +8,7 @@ import java.util.*
 
 object JwtConfig {
     private val secret = System.getenv("JWT_SECRET") ?: "zAP5MBA4B4Ijz0MZaS48"
-    private const val issuer = "kotme.com"
+    const val issuer = "kotme.com"
     private const val validityInMs = 36_000_00 * 10 // 10 hours
     private val algorithm = Algorithm.HMAC512(secret)
 

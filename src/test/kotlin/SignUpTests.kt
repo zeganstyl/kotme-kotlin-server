@@ -33,13 +33,7 @@ class SignUpTests: TestUtils {
     fun `sign up login fail`() {
         dropDB()
         module {
-            transaction {
-                User.new {
-                    name = "root"
-                    login = "root"
-                    password = "root"
-                }
-            }
+            createUserRoot()
             postFormUrlEncoded(
                 PATH.api_signup,
                 listOf(
