@@ -1,9 +1,7 @@
 import com.kotme.Main
 import com.kotme.module
-import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,7 +9,10 @@ import kotlin.test.assertEquals
 
 interface TestUtils {
     fun module(block: TestApplicationEngine.() -> Unit) {
-        withTestApplication(Application::module, block)
+        withTestApplication {
+            application.module(true)
+            block(this)
+        }
     }
 
     fun dropDB() {
