@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.21"
     kotlin("plugin.serialization") version "1.5.20"
-    application
 }
 
 repositories {
@@ -54,10 +53,6 @@ dependencies {
 }
 
 val main = "com.kotme.MainKt"
-
-application {
-    mainClass.set(main)
-}
 
 tasks.jar {
     archiveVersion.set("")
